@@ -1,60 +1,64 @@
-# Quick Start Guide
+# Quick Start Guide - Immigrify.ca Tools
 
-## For LLMs/AI Assistants
+## 🎯 Project Overview
 
-**READ THIS FIRST**: `SETUP_INSTRUCTIONS.md` contains complete step-by-step instructions.
+This is the auto-deployment system for immigrify.ca tools and applications.
 
-## For Developers
+## 🚀 Daily Workflow
 
-### Option 1: Automated Setup (5 minutes)
-
+### Deploy Changes to Test
 ```bash
-# 1. Copy template
-cp -r project-template my-new-project
-cd my-new-project
-
-# 2. Run setup script
-chmod +x setup.sh
-./setup.sh
-
-# 3. Follow prompts
-# 4. Add GitHub Secrets manually
-# 5. Done!
+cd immigrify-tools
+git checkout test
+git add .
+git commit -m "Description of changes"
+git push origin test
 ```
+**Result**: Auto-deploys to `https://immigrify.ca/tools-test/`
 
-### Option 2: Manual Setup (15 minutes)
+### Deploy to Production
+```bash
+git checkout main
+git merge test
+git push origin main
+```
+**Result**: Auto-deploys to `https://immigrify.ca/tools/`
 
-1. Copy template folder
-2. Read `SETUP_INSTRUCTIONS.md`
-3. Follow step-by-step instructions
-4. Configure GitHub repository
-5. Set up GitHub Secrets
-6. Test deployment
+## 📁 Adding a New App
 
-## Required Information
+### HTML App
+1. Create folder: `mkdir my-app`
+2. Add `index.html` and other files
+3. Push to `test` branch
+4. Access at: `https://immigrify.ca/tools-test/my-app/`
 
-Before starting, gather:
-- ✅ GitHub username and token
-- ✅ Domain name
-- ✅ FTP credentials
-- ✅ Deployment paths
+### React App
+1. Create folder: `mkdir my-react-app`
+2. Add React files with `package.json`
+3. Ensure `package.json` has `"homepage": "."`
+4. Push to `test` branch
+5. Access at: `https://immigrify.ca/tools-test/my-react-app/`
 
-## Next Steps After Setup
+## 📚 Documentation
 
-1. Remove example apps (optional)
-2. Create your first app
-3. Push to test branch
-4. Verify deployment
-5. Merge to main for production
+- **Daily Usage**: `docs/DEPLOYMENT_INSTRUCTIONS.md` ⭐
+- **Troubleshooting**: `docs/TROUBLESHOOTING.md`
+- **Detailed Setup**: `docs/DEPLOYMENT_SETUP_GUIDE.md`
 
-## Documentation
+## ⚠️ Important Rules
 
-- `SETUP_INSTRUCTIONS.md` - Complete setup guide
-- `docs/DEPLOYMENT_SETUP_GUIDE.md` - Detailed setup
-- `docs/DEPLOYMENT_INSTRUCTIONS.md` - Daily usage
-- `docs/TROUBLESHOOTING.md` - Common issues
+- ✅ Always test on `test` branch first
+- ✅ Verify test deployment before merging to `main`
+- ✅ Never push directly to `main` without testing
+- ✅ Use descriptive commit messages
+
+## 🔗 Quick Links
+
+- **Test Environment**: https://immigrify.ca/tools-test/
+- **Production Environment**: https://immigrify.ca/tools/
+- **GitHub Repository**: https://github.com/GromzkyJ/immigrify-tools
+- **GitHub Actions**: https://github.com/GromzkyJ/immigrify-tools/actions
 
 ---
 
-**Ready?** Start with `SETUP_INSTRUCTIONS.md`
-
+**Need help?** Check `docs/TROUBLESHOOTING.md` or `docs/DEPLOYMENT_INSTRUCTIONS.md`

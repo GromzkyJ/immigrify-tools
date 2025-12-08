@@ -1,71 +1,103 @@
-# Project Template - GitHub Actions Auto-Deployment
+# Immigrify.ca Tools - Auto-Deployment System
 
-This is a complete template for setting up automated deployment from GitHub to your web server using GitHub Actions and FTP.
+This repository contains tools and applications for immigrify.ca, with automated deployment from GitHub to the web server using GitHub Actions and FTP.
 
 ## 🚀 Quick Start
 
 **For LLMs/AI Assistants**: 
 1. Read `LLM_INSTRUCTIONS.md` first
-2. Then read `SETUP_INSTRUCTIONS.md` for complete step-by-step instructions
+2. Then read `SETUP_INSTRUCTIONS.md` for complete instructions
 
 **For Developers**: 
 1. Read `QUICK_START.md` for quick reference
-2. Follow `SETUP_INSTRUCTIONS.md` for detailed setup
-3. Or use automated `setup.sh` script
-
-## 📁 What's Included
-
-- ✅ Pre-configured GitHub Actions workflow
-- ✅ Automated setup script (`setup.sh`)
-- ✅ Complete documentation
-- ✅ Example apps (HTML and React)
-- ✅ Best practices and security guidelines
-- ✅ Troubleshooting guides
+2. Follow `docs/DEPLOYMENT_INSTRUCTIONS.md` for daily usage
 
 ## 🎯 Features
 
-- **Automatic Deployment**: Push to GitHub, auto-deploys to your server
+- **Automatic Deployment**: Push to GitHub, auto-deploys to immigrify.ca
 - **Test & Production**: Separate environments for testing and production
-- **Multiple Apps**: Support for HTML and React apps in compartmentalized folders
+- **Multiple Apps**: Support for HTML and React apps in organized folders
 - **Version Management**: Built-in version control and rollback capabilities
 - **Secure**: Credentials stored in GitHub Secrets
 
-## 📚 Documentation
+## 📁 Project Structure
 
-- `SETUP_INSTRUCTIONS.md` - **START HERE** - Master setup guide for LLMs/AI
-- `docs/DEPLOYMENT_SETUP_GUIDE.md` - Complete setup guide
-- `docs/DEPLOYMENT_INSTRUCTIONS.md` - Daily usage guide
-- `docs/TROUBLESHOOTING.md` - Common issues and solutions
-
-## 🛠️ Setup Options
-
-### Option 1: Automated Setup (Recommended)
-```bash
-chmod +x setup.sh
-./setup.sh
+```
+immigrify-tools/
+├── docs/                    # Detailed documentation
+│   ├── DEPLOYMENT_INSTRUCTIONS.md
+│   ├── DEPLOYMENT_SETUP_GUIDE.md
+│   └── TROUBLESHOOTING.md
+├── .github/
+│   └── workflows/
+│       └── deploy.yml       # GitHub Actions workflow
+├── [your-apps]/            # Your applications go here
+│   ├── app-name-1/
+│   ├── app-name-2/
+│   └── ...
+└── [documentation files]   # Setup and usage guides
 ```
 
-### Option 2: Manual Setup
-Follow `SETUP_INSTRUCTIONS.md` step by step
+## 🚀 Deployment Workflow
 
-## 📋 Requirements
+### Test Environment
+- **Branch**: `test`
+- **URL**: `https://immigrify.ca/tools-test/`
+- **Usage**: Test changes before production
 
-Before starting, you'll need:
-- GitHub account
-- FTP server access (CyberPanel or similar)
-- Domain name
-- Git installed locally
+### Production Environment
+- **Branch**: `main`
+- **URL**: `https://immigrify.ca/tools/`
+- **Usage**: Live production deployment
 
-## 🎓 Example Apps
+## 📚 Documentation
 
-- `examples/calculator/` - Simple HTML calculator
-- `examples/react-counter/` - React counter app
+- `SETUP_INSTRUCTIONS.md` - Setup guide (for reference)
+- `LLM_INSTRUCTIONS.md` - Instructions for AI assistants
+- `QUICK_START.md` - Quick reference guide
+- `docs/DEPLOYMENT_INSTRUCTIONS.md` - **Daily usage guide** ⭐
+- `docs/DEPLOYMENT_SETUP_GUIDE.md` - Detailed technical setup
+- `docs/TROUBLESHOOTING.md` - Common issues and solutions
 
-## 📝 License
+## 🛠️ How to Deploy
 
-This template is provided as-is for your projects.
+### Deploy to Test
+```bash
+git checkout test
+git add .
+git commit -m "Your changes"
+git push origin test
+```
+
+### Deploy to Production
+```bash
+git checkout main
+git merge test
+git push origin main
+```
+
+## 📋 Adding New Apps
+
+1. Create a new folder in the project root
+2. Add your HTML or React app files
+3. For React apps: Include `package.json` with `"homepage": "."`
+4. Push to `test` branch to deploy
+5. Test at `https://immigrify.ca/tools-test/your-app-name/`
+6. Merge to `main` for production
+
+## 🔐 Security
+
+- FTP credentials stored in GitHub Secrets
+- Server IP address used (bypasses Cloudflare)
+- Test environment for safe testing before production
+
+## 📝 Notes
+
+- Always test on `test` branch before deploying to `main`
+- Each app should be in its own folder
+- React apps require `package.json` with build script
+- HTML apps can be deployed directly
 
 ---
 
-**Ready to start?** Read `SETUP_INSTRUCTIONS.md` for complete setup instructions.
-
+**Ready to add your first app?** Check `docs/DEPLOYMENT_INSTRUCTIONS.md` for detailed instructions.
