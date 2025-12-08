@@ -1,0 +1,95 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - test
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Build React Apps
+      run: |
+        # Find all directories with package.json (React apps)
+        for dir in */; do
+          if [ -f "${dir}package.json" ]; then
+            echo "Building React app in ${dir}"
+            cd "${dir}"
+            npm install
+            npm run build
+            cd ..
+          fi
+        done
+    
+    - name: Prepare build directory
+      run: |
+        mkdir -p build
+        
+        # Copy simple HTML apps (folders without package.json)
+        for dir in */; do
+          dirname=$(basename "$dir")
+          # Skip if it's a React app (has package.json) or special folders
+          if [ ! -f "${dir}package.json" ] && [ "$dirname" != "node_modules" ] && [ "$dirname" != ".git" ] && [ "$dirname" != "build" ] && [ "$dirname" != ".github" ] && [ "$dirname" != "docs" ] && [ "$dirname" != "examples" ]; then
+            echo "Copying HTML app: ${dirname}"
+            cp -r "${dir}" build/
+          fi
+        done
+        
+        # Copy React app build outputs
+        for dir in */; do
+          dirname=$(basename "$dir")
+          if [ -f "${dir}package.json" ] && [ -d "${dir}build" ]; then
+            echo "Copying React app build: ${dirname}"
+            # Copy the build folder contents to the app folder in build/
+            mkdir -p "build/${dirname}"
+            cp -r "${dir}build"/* "build/${dirname}/"
+          fi
+        done
+        
+        # Copy root level HTML/CSS/JS files
+        cp -r *.html *.css *.js build/ 2>/dev/null || true
+        cp -r public build/ 2>/dev/null || true
+    
+    - name: Deploy to Test Environment
+      if: github.ref == 'refs/heads/test'
+      uses: SamKirkland/FTP-Deploy-Action@4.3.0
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./build/
+        server-dir: ./tools-test/
+        protocol: ftp
+        port: 21
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+    
+    - name: Deploy to Production Environment
+      if: github.ref == 'refs/heads/main'
+      uses: SamKirkland/FTP-Deploy-Action@4.3.0
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./build/
+        server-dir: ./tools/
+        protocol: ftp
+        port: 21
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+

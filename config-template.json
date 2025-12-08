@@ -1,0 +1,23 @@
+{
+  "_comment": "This is a template configuration file. Copy this to config.json and fill in your values. DO NOT commit config.json to Git.",
+  "project": {
+    "name": "YOUR_PROJECT_NAME",
+    "description": "Your project description"
+  },
+  "github": {
+    "username": "YOUR_GITHUB_USERNAME",
+    "repository": "YOUR_REPOSITORY_NAME"
+  },
+  "deployment": {
+    "domain": "yourdomain.com",
+    "test_url": "https://yourdomain.com/tools-test/",
+    "production_url": "https://yourdomain.com/tools/",
+    "test_path": "tools-test",
+    "production_path": "tools"
+  },
+  "ftp": {
+    "server": "yourdomain.com",
+    "username": "YOUR_FTP_USERNAME"
+  }
+}
+
