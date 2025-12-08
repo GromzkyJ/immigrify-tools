@@ -72,6 +72,7 @@ jobs:
         server-dir: ./tools-test/
         protocol: ftp
         port: 21
+        dangerous-clean-slate: false
         exclude: |
           **/.git*
           **/.git*/**
@@ -88,6 +89,7 @@ jobs:
         server-dir: ./tools/
         protocol: ftp
         port: 21
+        dangerous-clean-slate: false
         exclude: |
           **/.git*
           **/.git*/**
