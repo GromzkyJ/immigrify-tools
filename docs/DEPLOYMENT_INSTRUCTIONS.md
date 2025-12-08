@@ -32,8 +32,8 @@ This document provides step-by-step instructions for deploying code to test and 
    - Deployment happens automatically within 1-2 minutes after push
 
 3. **Deployment URLs**:
-   - Test Environment: `https://yourdomain.com/tools-test/`
-   - Production Environment: `https://yourdomain.com/tools/`
+   - Test Environment: `https://immigrify.ca/tools-test/`
+   - Production Environment: `https://immigrify.ca/tools/`
 
 ### Important Rules
 - ✅ **ALWAYS** test on `test` branch first before deploying to production
@@ -48,9 +48,9 @@ This document provides step-by-step instructions for deploying code to test and 
 Before deploying, verify you have:
 
 ### Required Information
-- [ ] GitHub repository URL (e.g., `https://github.com/username/repository-name`)
+- [ ] GitHub repository URL: `https://github.com/GromzkyJ/immigrify-tools`
 - [ ] GitHub Personal Access Token (with `repo` and `workflow` permissions)
-- [ ] Access to the project directory on your local machine
+- [ ] Access to the project directory: `/Users/maplelyf/Desktop/Immigrify Tools/immigrify-tools`
 - [ ] Git is installed and configured
 
 ### Verify Git Configuration
@@ -156,23 +156,24 @@ git commit -m "Description of what you changed and why"
 #### Step 6: Authenticate and Push to Test Branch
 ```bash
 # Replace YOUR_TOKEN with your actual GitHub Personal Access Token
-# Replace YOUR_USERNAME with your GitHub username
-# Replace REPOSITORY_NAME with your repository name
+# For immigrify.ca project:
+# - Username: GromzkyJ
+# - Repository: immigrify-tools
 
-git remote set-url origin https://YOUR_TOKEN@github.com/YOUR_USERNAME/REPOSITORY_NAME.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 
 # Push to test branch
 git push origin test
 
 # IMPORTANT: Remove token from URL after pushing (security)
-git remote set-url origin https://github.com/YOUR_USERNAME/REPOSITORY_NAME.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 ```
 
-**Example** (replace with your actual values):
+**Example** (for immigrify.ca project):
 ```bash
-git remote set-url origin https://ghp_abc123xyz@github.com/johndoe/my-project.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin test
-git remote set-url origin https://github.com/johndoe/my-project.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 ```
 
 **Expected Output**: 
@@ -212,7 +213,7 @@ To https://github.com/username/repository.git
 #### Step 9: Verify Test Deployment is Live
 1. Wait 1-2 minutes after GitHub Actions shows success
 2. Open your web browser
-3. Navigate to: `https://yourdomain.com/tools-test/`
+3. Navigate to: `https://immigrify.ca/tools-test/`
 4. Verify:
    - Page loads without errors
    - Your changes are visible
@@ -237,7 +238,7 @@ To https://github.com/username/repository.git
 #### Step 1: Verify Test Deployment is Working
 Before proceeding, you MUST:
 - [ ] Have successfully deployed to test environment
-- [ ] Verified test site works correctly at `https://yourdomain.com/tools-test/`
+- [ ] Verified test site works correctly at `https://immigrify.ca/tools-test/`
 - [ ] Tested all functionality on test site
 - [ ] Confirmed no errors or issues
 - [ ] Reviewed all changes one more time
@@ -317,20 +318,20 @@ git status
 #### Step 6: Push to Main Branch (Production Deployment)
 ```bash
 # Authenticate with token
-git remote set-url origin https://YOUR_TOKEN@github.com/YOUR_USERNAME/REPOSITORY_NAME.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 
 # Push to main branch (THIS DEPLOYS TO PRODUCTION)
 git push origin main
 
 # IMPORTANT: Remove token from URL after pushing
-git remote set-url origin https://github.com/YOUR_USERNAME/REPOSITORY_NAME.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 ```
 
-**Example**:
+**Example** (for immigrify.ca):
 ```bash
-git remote set-url origin https://ghp_abc123xyz@github.com/johndoe/my-project.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin main
-git remote set-url origin https://github.com/johndoe/my-project.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 ```
 
 **Expected Output**: Similar to test push, but deploying to main branch.
@@ -351,7 +352,7 @@ git remote set-url origin https://github.com/johndoe/my-project.git
 #### Step 9: Verify Production Site is Live
 1. Wait 1-2 minutes after GitHub Actions shows success
 2. Open your web browser
-3. Navigate to: `https://yourdomain.com/tools/`
+3. Navigate to: `https://immigrify.ca/tools/`
 4. Verify:
    - Page loads correctly
    - All changes from test are now in production
@@ -444,9 +445,9 @@ cd ..
 # Add React app
 git add my-react-app/
 git commit -m "Add React app: my-react-app"
-git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin test
-git remote set-url origin https://github.com/USERNAME/REPO.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 ```
 
 #### Step 6: Monitor Build Process
@@ -457,7 +458,7 @@ git remote set-url origin https://github.com/USERNAME/REPO.git
 5. Wait for deployment to complete (2-5 minutes for React apps)
 
 #### Step 7: Verify Deployment
-Visit: `https://yourdomain.com/tools-test/my-react-app/`
+Visit: `https://immigrify.ca/tools-test/my-react-app/`
 
 ### Updating an Existing React App
 
@@ -487,9 +488,9 @@ cd ..
 # Commit changes
 git add my-react-app/
 git commit -m "Update React app: description of changes"
-git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin test
-git remote set-url origin https://github.com/USERNAME/REPO.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 ```
 
 ### Migrating an Existing React App
@@ -540,9 +541,9 @@ cd /path/to/Tools
 
 git add blockchain-auth/
 git commit -m "Add blockchain authentication React app"
-git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin test
-git remote set-url origin https://github.com/USERNAME/REPO.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 ```
 
 ### React App Deployment Checklist
@@ -630,7 +631,7 @@ Before deploying a React app:
 ### After Every Deployment
 
 #### 1. Check GitHub Actions Status
-- Go to: `https://github.com/YOUR_USERNAME/REPOSITORY_NAME/actions`
+- Go to: `https://github.com/GromzkyJ/immigrify-tools/actions`
 - Verify latest run shows green checkmark
 - Click on the run to see detailed logs
 - Verify no error messages in logs
@@ -755,14 +756,14 @@ git revert abc1234
 git revert abc1234 -m "Revert to Version 2: Version 3 caused issues"
 
 # Push the revert to test
-git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin test
-git remote set-url origin https://github.com/USERNAME/REPO.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 ```
 
 **Step 3: Verify on Test Environment**
 - Wait for deployment to complete
-- Check `https://yourdomain.com/tools-test/`
+- Check `https://immigrify.ca/tools-test/`
 - Verify site is working again
 
 **Step 4: Deploy to Production**
@@ -770,9 +771,9 @@ git remote set-url origin https://github.com/USERNAME/REPO.git
 # Merge to main
 git checkout main
 git merge test
-git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin main
-git remote set-url origin https://github.com/USERNAME/REPO.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 ```
 
 #### Alternative: Revert Using Version Tags
@@ -814,9 +815,9 @@ git checkout test
 git reset --hard def5678  # Replace with your commit hash
 
 # 3. Force push (ONLY if absolutely necessary)
-git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin test --force
-git remote set-url origin https://github.com/USERNAME/REPO.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 
 # 4. Verify, then deploy to production
 git checkout main
@@ -897,16 +898,16 @@ git add path/to/file.js
 git commit -m "Fix bug in file.js"
 
 # 5. Push to test
-git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin test
-git remote set-url origin https://github.com/USERNAME/REPO.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 
 # 6. Verify on test site, then merge to main
 git checkout main
 git merge test
-git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin main
-git remote set-url origin https://github.com/USERNAME/REPO.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 ```
 
 ### Scenario 2: Deploying Multiple Related Changes
@@ -939,9 +940,9 @@ git log --oneline
 git reset --hard abc1234
 
 # 4. Force push to revert (ONLY if you're sure)
-git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin main --force
-git remote set-url origin https://github.com/USERNAME/REPO.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 
 # 5. Verify site is working again
 ```
@@ -987,18 +988,18 @@ git commit -m "Hotfix: Critical bug description"
 # 4. Test on test environment first (if possible)
 git checkout test
 git merge hotfix/critical-bug-fix
-git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin test
-git remote set-url origin https://github.com/USERNAME/REPO.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 
 # 5. Verify on test site quickly
 
 # 6. Deploy to production
 git checkout main
 git merge hotfix/critical-bug-fix
-git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin main
-git remote set-url origin https://github.com/USERNAME/REPO.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 
 # 7. Also merge back to test to keep it in sync
 git checkout test
@@ -1030,7 +1031,7 @@ fatal: unable to access 'https://github.com/...': The requested URL returned err
    git remote -v
    
    # Update with correct token
-   git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+   git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
    ```
 
 3. **Try Using SSH Instead** (if configured):
@@ -1600,24 +1601,24 @@ git log --oneline -5
 git checkout test
 git add .
 git commit -m "Your message"
-git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin test
-git remote set-url origin https://github.com/USERNAME/REPO.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 ```
 
 ### Deploy to Production
 ```bash
 git checkout main
 git merge test
-git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+git remote set-url origin https://YOUR_TOKEN@github.com/GromzkyJ/immigrify-tools.git
 git push origin main
-git remote set-url origin https://github.com/USERNAME/REPO.git
+git remote set-url origin https://github.com/GromzkyJ/immigrify-tools.git
 ```
 
 ### Verify Deployment
-1. GitHub Actions: `https://github.com/USERNAME/REPO/actions`
-2. Test URL: `https://yourdomain.com/tools-test/`
-3. Production URL: `https://yourdomain.com/tools/`
+1. GitHub Actions: `https://github.com/GromzkyJ/immigrify-tools/actions`
+2. Test URL: `https://immigrify.ca/tools-test/`
+3. Production URL: `https://immigrify.ca/tools/`
 
 ### Version Management
 ```bash

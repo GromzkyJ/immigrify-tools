@@ -1,158 +1,123 @@
-# Instructions for LLMs/AI Assistants
+# Instructions for LLMs/AI Assistants - Immigrify.ca Tools
 
 ## 🎯 Your Role
 
-You are helping set up a new project using this deployment template. Follow these instructions **exactly** to ensure successful setup.
+You are helping with the **immigrify.ca tools project**. This is an active, working project with automated deployment already configured. Your role is to help add new tools, fix issues, and maintain the project.
 
 ## 📖 Reading Order
 
 1. **Read this file first** (you are here)
-2. **Read `SETUP_INSTRUCTIONS.md`** - Complete setup guide
-3. **Read `TEMPLATE_OVERVIEW.md`** - Understand what the template provides
+2. **Read `README.md`** - Project overview
+3. **Read `docs/DEPLOYMENT_INSTRUCTIONS.md`** - Daily usage guide
 4. **Reference `docs/TROUBLESHOOTING.md`** - If issues arise
 
-## 🔍 What You Need to Do
+## 🔍 Project Information
 
-### Step 1: Understand the Template
+### Current Setup
+- **Project**: immigrify.ca Tools
+- **Domain**: immigrify.ca
+- **GitHub Repository**: https://github.com/GromzkyJ/immigrify-tools
+- **GitHub Username**: GromzkyJ
 
-This template provides:
-- Automated deployment from GitHub to web server
-- Support for HTML and React apps
-- Test and production environments
-- Complete documentation
+### Deployment URLs
+- **Test Environment**: `https://immigrify.ca/tools-test/`
+- **Production Environment**: `https://immigrify.ca/tools/`
 
-### Step 2: Gather Required Information
+### Branches
+- `test` branch → Auto-deploys to test environment
+- `main` branch → Auto-deploys to production environment
 
-Ask the user for:
+## 🚀 What You Need to Know
 
-1. **Project Details**:
-   - Project name
-   - Project description (optional)
+### This Project Is Already Set Up
+- ✅ GitHub repository configured
+- ✅ GitHub Actions workflow working
+- ✅ GitHub Secrets configured
+- ✅ Server directories created
+- ✅ Auto-deployment operational
 
-2. **GitHub Information**:
-   - GitHub username
-   - Desired repository name
-   - Personal Access Token (with `repo` and `workflow` permissions)
+### Your Tasks
+1. **Add New Tools/Apps**: Create new folders with HTML or React apps
+2. **Update Existing Apps**: Modify files in existing app folders
+3. **Fix Issues**: Troubleshoot deployment or code issues
+4. **Maintain Documentation**: Keep docs updated
 
-3. **Server Information**:
-   - Domain name
-   - FTP server address
-   - FTP username (full username from CyberPanel)
-   - FTP password
-   - Test environment path (e.g., `/tools-test/`)
-   - Production environment path (e.g., `/tools/`)
+## 📋 Adding a New App
 
-### Step 3: Choose Setup Method
+### HTML App
+1. Create folder: `mkdir app-name`
+2. Add `index.html` and other files
+3. Commit and push to `test` branch
+4. Test at: `https://immigrify.ca/tools-test/app-name/`
+5. Merge to `main` for production
 
-**Option A: Automated Setup (Recommended)**
-- Use the `setup.sh` script
-- Guide user through running it
-- Script handles most configuration
-
-**Option B: Manual Setup**
-- Follow `SETUP_INSTRUCTIONS.md` step-by-step
-- Execute each command
-- Verify each step before proceeding
-
-### Step 4: Execute Setup
-
-**If using automated setup:**
-1. Copy template folder
-2. Run `./setup.sh`
-3. Guide user through prompts
-4. Help add GitHub Secrets manually
-5. Test deployment
-
-**If using manual setup:**
-1. Copy template folder
-2. Follow `SETUP_INSTRUCTIONS.md` exactly
-3. Execute each step
-4. Verify after each major step
-5. Test deployment
-
-### Step 5: Verify Setup
-
-Check:
-- ✅ GitHub repository created
-- ✅ Branches exist (test and main)
-- ✅ GitHub Secrets added
-- ✅ Server directories exist
-- ✅ Test deployment works
-- ✅ Files appear on server
+### React App
+1. Create folder: `mkdir app-name`
+2. Add React files with `package.json`
+3. Ensure `package.json` has `"homepage": "."`
+4. Commit and push to `test` branch
+5. Test at: `https://immigrify.ca/tools-test/app-name/`
+6. Merge to `main` for production
 
 ## ⚠️ Important Rules
 
 1. **Never commit credentials** to the repository
-2. **Always use GitHub Secrets** for sensitive data
-3. **Verify each step** before proceeding
-4. **Test on test branch** before production
-5. **Follow instructions exactly** - don't skip steps
+2. **Always test on `test` branch** before production
+3. **Verify test deployment** before merging to `main`
+4. **Use descriptive commit messages**
+5. **Follow the deployment workflow** exactly
 
 ## 🐛 When Issues Arise
 
 1. **Check `docs/TROUBLESHOOTING.md`** first
-2. **Review error messages** carefully
+2. **Review GitHub Actions logs**: https://github.com/GromzkyJ/immigrify-tools/actions
 3. **Verify configuration** step by step
-4. **Check GitHub Actions logs** for details
+4. **Check server directories** exist in CyberPanel
 5. **Test components separately** to isolate issues
 
-## 📝 Communication with User
+## 📝 Communication Guidelines
 
-- **Be clear** about what information you need
-- **Explain** what each step does
+- **Be clear** about what you're doing
+- **Explain** changes before making them
 - **Verify** information before proceeding
-- **Confirm** before making changes
+- **Confirm** before making major changes
 - **Report** progress and any issues
 
 ## ✅ Success Indicators
 
-Setup is successful when:
-- User can push code to GitHub
-- GitHub Actions workflow runs
+A task is successful when:
+- Code is committed and pushed
+- GitHub Actions workflow runs successfully
 - Files deploy to test server
 - Test URL loads correctly
-- User understands how to deploy
+- User confirms it works
 
-## 🎓 Key Concepts to Understand
+## 🎓 Key Concepts
 
 1. **Branches**: `test` for testing, `main` for production
 2. **GitHub Actions**: Automatically runs on push
-3. **GitHub Secrets**: Secure storage for credentials
+3. **Deployment**: Automatic via FTP to immigrify.ca
 4. **Build Process**: React apps need `npm run build`
-5. **Deployment Paths**: Relative paths for subdirectories
+5. **Server IP**: Used for FTP (bypasses Cloudflare)
 
 ## 📚 Reference Documents
 
-- `SETUP_INSTRUCTIONS.md` - Complete setup guide
-- `TEMPLATE_OVERVIEW.md` - What the template provides
+- `README.md` - Project overview
+- `QUICK_START.md` - Quick reference
+- `docs/DEPLOYMENT_INSTRUCTIONS.md` - **Daily usage guide** ⭐
 - `docs/DEPLOYMENT_SETUP_GUIDE.md` - Technical details
-- `docs/DEPLOYMENT_INSTRUCTIONS.md` - Daily usage
 - `docs/TROUBLESHOOTING.md` - Problem solving
-
-## 🚀 Quick Start Checklist
-
-When user wants to set up a new project:
-
-- [ ] Read `SETUP_INSTRUCTIONS.md`
-- [ ] Gather all required information from user
-- [ ] Choose setup method (automated or manual)
-- [ ] Execute setup steps
-- [ ] Verify GitHub repository
-- [ ] Configure GitHub Secrets
-- [ ] Test deployment
-- [ ] Confirm success with user
 
 ## 💡 Pro Tips
 
-1. **Ask questions** if information is unclear
-2. **Verify inputs** before using them
-3. **Test incrementally** - don't skip verification
-4. **Document issues** for future reference
-5. **Be patient** - setup takes time but saves time later
+1. **Always test first** on `test` branch
+2. **Verify deployments** before considering done
+3. **Check GitHub Actions** after every push
+4. **Document changes** in commit messages
+5. **Keep code organized** in separate folders
 
 ---
 
-**Remember**: This template has been tested and proven. Follow the instructions exactly, and setup will succeed. If issues arise, refer to troubleshooting guide.
+**Remember**: This is an active project for immigrify.ca. Always test changes before deploying to production.
 
-**Good luck!** 🚀
-
+**For daily usage, see `docs/DEPLOYMENT_INSTRUCTIONS.md`**
