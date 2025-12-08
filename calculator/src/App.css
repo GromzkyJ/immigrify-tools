@@ -1,0 +1,132 @@
+.App {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.calculator {
+  background: #1a1a1a;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 100%;
+}
+
+.display {
+  background: #000;
+  border-radius: 10px;
+  padding: 30px 20px;
+  margin-bottom: 20px;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.display-value {
+  color: #fff;
+  font-size: 48px;
+  font-weight: 300;
+  word-wrap: break-word;
+  word-break: break-all;
+  text-align: right;
+  width: 100%;
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.key {
+  border: none;
+  border-radius: 10px;
+  font-size: 24px;
+  font-weight: 500;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #fff;
+  background: #2d2d2d;
+}
+
+.key:hover {
+  transform: scale(0.95);
+  opacity: 0.9;
+}
+
+.key:active {
+  transform: scale(0.9);
+}
+
+.key-number {
+  background: #3d3d3d;
+}
+
+.key-number:hover {
+  background: #4d4d4d;
+}
+
+.key-operator {
+  background: #ff9500;
+  font-size: 28px;
+}
+
+.key-operator:hover {
+  background: #ffad33;
+}
+
+.key-clear {
+  background: #a6a6a6;
+  color: #000;
+}
+
+.key-clear:hover {
+  background: #bfbfbf;
+}
+
+.key-equals {
+  background: #ff9500;
+  grid-row: span 2;
+  font-size: 32px;
+}
+
+.key-equals:hover {
+  background: #ffad33;
+}
+
+.key-zero {
+  grid-column: span 2;
+}
+
+@media (max-width: 480px) {
+  .calculator {
+    padding: 15px;
+  }
+  
+  .display {
+    padding: 20px 15px;
+    min-height: 80px;
+  }
+  
+  .display-value {
+    font-size: 36px;
+  }
+  
+  .key {
+    padding: 15px;
+    font-size: 20px;
+  }
+  
+  .key-operator {
+    font-size: 24px;
+  }
+  
+  .key-equals {
+    font-size: 28px;
+  }
+}
+
