@@ -19,6 +19,27 @@ jobs:
       with:
         node-version: '18'
     
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, xml, zip, gd, curl
+    
+    - name: Install Composer
+      run: |
+        curl -sS https://getcomposer.org/installer | php
+        sudo mv composer.phar /usr/local/bin/composer
+        composer --version
+    
+    - name: Install Composer Dependencies for SuiteCRM
+      run: |
+        if [ -f "crm/composer.json" ]; then
+          echo "Installing Composer dependencies for SuiteCRM..."
+          cd crm
+          composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+          cd ..
+        fi
+    
     - name: Build React Apps
       run: |
         # Find all directories with package.json (React apps)
@@ -96,7 +117,6 @@ jobs:
           **/.env.dist
           **/.gitattributes
           **/composer.lock
-          **/vendor/**
           **/bower_components/**
           **/.sass-cache/**
           **/tests/_output/**
@@ -146,7 +166,6 @@ jobs:
           **/.env.dist
           **/.gitattributes
           **/composer.lock
-          **/vendor/**
           **/bower_components/**
           **/.sass-cache/**
           **/tests/_output/**
