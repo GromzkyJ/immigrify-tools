@@ -19,6 +19,22 @@ jobs:
       with:
         node-version: '18'
     
+    - name: Setup PHP and Composer
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, xml, zip, gd, curl, mysqli, pdo_mysql
+        tools: composer
+    
+    - name: Install Composer Dependencies for SuiteCRM
+      run: |
+        if [ -f "crm/composer.json" ]; then
+          echo "Installing Composer dependencies for SuiteCRM..."
+          cd crm
+          composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+          cd ..
+        fi
+    
     - name: Build React Apps
       run: |
         # Find all directories with package.json (React apps)
@@ -41,10 +57,18 @@ jobs:
           dirname=$(basename "$dir")
           # Skip if it's a React app (has package.json) or special folders
           if [ ! -f "${dir}package.json" ] && [ "$dirname" != "node_modules" ] && [ "$dirname" != ".git" ] && [ "$dirname" != "build" ] && [ "$dirname" != ".github" ] && [ "$dirname" != "docs" ] && [ "$dirname" != "examples" ]; then
-            echo "Copying HTML app: ${dirname}"
+            echo "Copying app: ${dirname}"
             cp -r "${dir}" build/
           fi
         done
+        
+        # Configure SuiteCRM .htaccess for subdirectory deployment
+        if [ -d "build/crm" ] && [ -f "crm/.htaccess" ]; then
+          echo "Configuring .htaccess for SuiteCRM subdirectory"
+          # Update RewriteBase - will be set correctly in deployment step
+          # Default to test, production step will override if needed
+          cp crm/.htaccess build/crm/.htaccess
+        fi
         
         # Copy React app build outputs
         for dir in */; do
@@ -60,6 +84,15 @@ jobs:
         # Copy root level HTML/CSS/JS files
         cp -r *.html *.css *.js build/ 2>/dev/null || true
         cp -r public build/ 2>/dev/null || true
+    
+    - name: Configure .htaccess for Test Environment
+      if: github.ref == 'refs/heads/test'
+      run: |
+        if [ -f "build/crm/.htaccess" ]; then
+          echo "Setting RewriteBase for test environment"
+          sed -i 's|RewriteBase /tools-test/crm/|RewriteBase /tools-test/crm/|g' build/crm/.htaccess
+          sed -i 's|RewriteBase /tools/crm/|RewriteBase /tools-test/crm/|g' build/crm/.htaccess
+        fi
     
     - name: Deploy to Test Environment
       if: github.ref == 'refs/heads/test'
@@ -109,6 +142,15 @@ jobs:
           **/themes/SuiteP/css/*/*.map
           **/themes/SuiteP/css/*/color-palette.css
           **/themes/SuiteP/css/*/variables.css
+    
+    - name: Configure .htaccess for Production Environment
+      if: github.ref == 'refs/heads/main'
+      run: |
+        if [ -f "build/crm/.htaccess" ]; then
+          echo "Setting RewriteBase for production environment"
+          sed -i 's|RewriteBase /tools-test/crm/|RewriteBase /tools/crm/|g' build/crm/.htaccess
+          sed -i 's|RewriteBase /tools/crm/|RewriteBase /tools/crm/|g' build/crm/.htaccess
+        fi
     
     - name: Deploy to Production Environment
       if: github.ref == 'refs/heads/main'

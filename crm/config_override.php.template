@@ -1,0 +1,27 @@
+<?php
+/**
+ * SuiteCRM Configuration Override Template
+ * For Subdirectory Installation: immigrify.ca/tools-test/crm/
+ * 
+ * This file will be created during installation.
+ * DO NOT edit this template - edit config_override.php after installation.
+ */
+
+// Base URL Configuration for Subdirectory
+$sugar_config['site_url'] = 'https://immigrify.ca/tools-test/crm/';
+$sugar_config['base_url'] = 'https://immigrify.ca/tools-test/crm/';
+
+// Path Configuration
+$sugar_config['cache_dir'] = 'cache/';
+$sugar_config['upload_dir'] = 'upload/';
+$sugar_config['custom_dir'] = 'custom/';
+
+// Security Settings
+$sugar_config['disable_persistent_connections'] = 'false';
+$sugar_config['default_module'] = 'Home';
+$sugar_config['default_action'] = 'index';
+
+// Performance Settings
+$sugar_config['logger']['level'] = 'error';
+$sugar_config['developerMode'] = false;
+
