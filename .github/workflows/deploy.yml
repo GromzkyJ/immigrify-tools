@@ -73,10 +73,43 @@ jobs:
         protocol: ftp
         port: 21
         dangerous-clean-slate: false
+        passive: true
+        timeout: 60000
         exclude: |
           **/.git*
           **/.git*/**
           **/node_modules/**
+          **/tests/**
+          **/.github/**
+          **/.travis.yml
+          **/.codecov.yml
+          **/codacy.yml
+          **/codeception.dist.yml
+          **/phpcs.xml
+          **/.php_cs.dist
+          **/.php_cs.cache
+          **/RoboFile.php
+          **/build/**
+          **/travis.php.ini
+          **/README.md
+          **/LICENSE.txt
+          **/.env.dist
+          **/.gitattributes
+          **/composer.lock
+          **/vendor/**
+          **/bower_components/**
+          **/.sass-cache/**
+          **/tests/_output/**
+          **/tests/_envs/**
+          **/codeception.yml
+          **/BrowserStackLocal
+          **/browserstack.err
+          **/fakeImapResource
+          **/include/Imap/ImapTestSettings.txt
+          **/themes/SuiteP/css/*.map
+          **/themes/SuiteP/css/*/*.map
+          **/themes/SuiteP/css/*/color-palette.css
+          **/themes/SuiteP/css/*/variables.css
     
     - name: Deploy to Production Environment
       if: github.ref == 'refs/heads/main'
@@ -90,8 +123,41 @@ jobs:
         protocol: ftp
         port: 21
         dangerous-clean-slate: false
+        passive: true
+        timeout: 60000
         exclude: |
           **/.git*
           **/.git*/**
           **/node_modules/**
+          **/tests/**
+          **/.github/**
+          **/.travis.yml
+          **/.codecov.yml
+          **/codacy.yml
+          **/codeception.dist.yml
+          **/phpcs.xml
+          **/.php_cs.dist
+          **/.php_cs.cache
+          **/RoboFile.php
+          **/build/**
+          **/travis.php.ini
+          **/README.md
+          **/LICENSE.txt
+          **/.env.dist
+          **/.gitattributes
+          **/composer.lock
+          **/vendor/**
+          **/bower_components/**
+          **/.sass-cache/**
+          **/tests/_output/**
+          **/tests/_envs/**
+          **/codeception.yml
+          **/BrowserStackLocal
+          **/browserstack.err
+          **/fakeImapResource
+          **/include/Imap/ImapTestSettings.txt
+          **/themes/SuiteP/css/*.map
+          **/themes/SuiteP/css/*/*.map
+          **/themes/SuiteP/css/*/color-palette.css
+          **/themes/SuiteP/css/*/variables.css
 
