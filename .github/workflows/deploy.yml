@@ -52,6 +52,9 @@ jobs:
       run: |
         mkdir -p build
         
+        echo "Available directories:"
+        ls -la
+        
         # Copy simple HTML apps (folders without package.json)
         for dir in */; do
           dirname=$(basename "$dir")
@@ -59,8 +62,13 @@ jobs:
           if [ ! -f "${dir}package.json" ] && [ "$dirname" != "node_modules" ] && [ "$dirname" != ".git" ] && [ "$dirname" != "build" ] && [ "$dirname" != ".github" ] && [ "$dirname" != "docs" ] && [ "$dirname" != "examples" ]; then
             echo "Copying app: ${dirname}"
             cp -r "${dir}" build/
+            echo "Copied ${dirname} - checking if it exists in build:"
+            ls -la "build/${dirname}" | head -5 || echo "ERROR: ${dirname} not copied!"
           fi
         done
+        
+        echo "Build directory contents after copying:"
+        ls -la build/
         
         # Configure SuiteCRM .htaccess for subdirectory deployment
         if [ -d "build/crm" ] && [ -f "crm/.htaccess" ]; then
@@ -94,6 +102,20 @@ jobs:
           sed -i 's|RewriteBase /tools/crm/|RewriteBase /tools-test/crm/|g' build/crm/.htaccess
         fi
     
+    - name: Verify build directory
+      if: github.ref == 'refs/heads/test'
+      run: |
+        echo "Checking build directory contents..."
+        ls -la build/ || echo "Build directory does not exist"
+        if [ -d "build/crm" ]; then
+          echo "CRM folder found in build/"
+          ls -la build/crm/ | head -20
+          echo "Total files in crm: $(find build/crm -type f | wc -l)"
+        else
+          echo "ERROR: CRM folder not found in build/"
+          exit 1
+        fi
+    
     - name: Deploy to Test Environment
       if: github.ref == 'refs/heads/test'
       uses: SamKirkland/FTP-Deploy-Action@4.3.0
@@ -106,8 +128,6 @@ jobs:
         protocol: ftp
         port: 21
         dangerous-clean-slate: false
-        passive: true
-        timeout: 60000
         exclude: |
           **/.git*
           **/.git*/**
@@ -152,6 +172,20 @@ jobs:
           sed -i 's|RewriteBase /tools/crm/|RewriteBase /tools/crm/|g' build/crm/.htaccess
         fi
     
+    - name: Verify build directory
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "Checking build directory contents..."
+        ls -la build/ || echo "Build directory does not exist"
+        if [ -d "build/crm" ]; then
+          echo "CRM folder found in build/"
+          ls -la build/crm/ | head -20
+          echo "Total files in crm: $(find build/crm -type f | wc -l)"
+        else
+          echo "ERROR: CRM folder not found in build/"
+          exit 1
+        fi
+    
     - name: Deploy to Production Environment
       if: github.ref == 'refs/heads/main'
       uses: SamKirkland/FTP-Deploy-Action@4.3.0
@@ -164,8 +198,6 @@ jobs:
         protocol: ftp
         port: 21
         dangerous-clean-slate: false
-        passive: true
-        timeout: 60000
         exclude: |
           **/.git*
           **/.git*/**
