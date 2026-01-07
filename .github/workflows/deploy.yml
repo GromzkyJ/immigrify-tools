@@ -56,14 +56,35 @@ jobs:
         ls -la
         
         # Copy simple HTML apps (folders without package.json)
+        echo "=== Starting to copy directories ==="
         for dir in */; do
           dirname=$(basename "$dir")
+          echo "Checking directory: ${dirname}"
+          
           # Skip if it's a React app (has package.json) or special folders
-          if [ ! -f "${dir}package.json" ] && [ "$dirname" != "node_modules" ] && [ "$dirname" != ".git" ] && [ "$dirname" != "build" ] && [ "$dirname" != ".github" ] && [ "$dirname" != "docs" ] && [ "$dirname" != "examples" ]; then
-            echo "Copying app: ${dirname}"
-            cp -r "${dir}" build/
-            echo "Copied ${dirname} - checking if it exists in build:"
-            ls -la "build/${dirname}" | head -5 || echo "ERROR: ${dirname} not copied!"
+          if [ -f "${dir}package.json" ]; then
+            echo "  → Skipping ${dirname} (has package.json - React app)"
+            continue
+          fi
+          
+          if [ "$dirname" == "node_modules" ] || [ "$dirname" == ".git" ] || [ "$dirname" == "build" ] || [ "$dirname" == ".github" ] || [ "$dirname" == "docs" ] || [ "$dirname" == "examples" ]; then
+            echo "  → Skipping ${dirname} (special folder)"
+            continue
+          fi
+          
+          echo "  → Copying ${dirname} to build/"
+          if cp -r "${dir}" build/; then
+            echo "  ✓ Successfully copied ${dirname}"
+            echo "  Verifying copy:"
+            if [ -d "build/${dirname}" ]; then
+              echo "    ✓ build/${dirname} exists"
+              file_count=$(find "build/${dirname}" -type f 2>/dev/null | wc -l)
+              echo "    ✓ Contains ${file_count} files"
+            else
+              echo "    ✗ ERROR: build/${dirname} does not exist after copy!"
+            fi
+          else
+            echo "  ✗ ERROR: Failed to copy ${dirname}"
           fi
         done
         
@@ -105,16 +126,31 @@ jobs:
     - name: Verify build directory
       if: github.ref == 'refs/heads/test'
       run: |
-        echo "Checking build directory contents..."
-        ls -la build/ || echo "Build directory does not exist"
-        if [ -d "build/crm" ]; then
-          echo "CRM folder found in build/"
-          ls -la build/crm/ | head -20
-          echo "Total files in crm: $(find build/crm -type f | wc -l)"
-        else
-          echo "ERROR: CRM folder not found in build/"
+        echo "=== Build Directory Verification ==="
+        echo "Checking if build directory exists..."
+        if [ ! -d "build" ]; then
+          echo "ERROR: Build directory does not exist!"
           exit 1
         fi
+        
+        echo "Build directory contents:"
+        ls -la build/ || echo "Cannot list build directory"
+        
+        echo "Checking for CRM folder..."
+        if [ -d "build/crm" ]; then
+          echo "✓ CRM folder found in build/"
+          echo "CRM folder contents (first 20 items):"
+          ls -la build/crm/ | head -20
+          echo "Total files in crm: $(find build/crm -type f 2>/dev/null | wc -l)"
+          echo "Total directories in crm: $(find build/crm -type d 2>/dev/null | wc -l)"
+        else
+          echo "ERROR: CRM folder not found in build/"
+          echo "Available folders in build/:"
+          find build/ -maxdepth 1 -type d
+          exit 1
+        fi
+        
+        echo "=== Verification Complete ==="
     
     - name: Deploy to Test Environment
       if: github.ref == 'refs/heads/test'
