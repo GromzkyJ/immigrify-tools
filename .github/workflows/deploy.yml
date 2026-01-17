@@ -298,6 +298,7 @@ jobs:
         protocol: ftp
         port: 21
         dangerous-clean-slate: false
+        log-level: verbose
         exclude: |
           **/.git*
           **/.git*/**
