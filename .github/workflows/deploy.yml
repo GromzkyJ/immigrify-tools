@@ -243,8 +243,6 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./build/
         server-dir: ./tools-test/
-        dangerous-clean-slate: false
-        dry-run: false
         protocol: ftp
         port: 21
         dangerous-clean-slate: false
