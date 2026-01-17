@@ -273,6 +273,18 @@ jobs:
         fi
         
         echo "Build directory is ready for deployment"
+        
+        # Final check: ensure contact-form has index.html
+        if [ -d "build/contact-form" ]; then
+          if [ -f "build/contact-form/index.html" ]; then
+            echo "✓ contact-form/index.html exists"
+          else
+            echo "✗ ERROR: contact-form/index.html is missing!"
+            echo "Files in contact-form:"
+            ls -la build/contact-form/ || true
+            exit 1
+          fi
+        fi
     
     - name: Deploy to Test Environment
       if: github.ref == 'refs/heads/test'
