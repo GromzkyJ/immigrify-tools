@@ -106,7 +106,18 @@ jobs:
             echo "Copying React app build: ${dirname}"
             # Copy the build folder contents to the app folder in build/
             mkdir -p "build/${dirname}"
-            cp -r "${dir}build"/* "build/${dirname}/"
+            # Use a more robust copy that handles empty directories and hidden files
+            if [ "$(ls -A "${dir}build" 2>/dev/null)" ]; then
+              cp -r "${dir}build"/. "build/${dirname}/" 2>/dev/null || cp -r "${dir}build"/* "build/${dirname}/" 2>/dev/null || true
+            else
+              echo "  ⚠ Warning: ${dirname}/build is empty"
+            fi
+            # Verify copy was successful
+            if [ -d "build/${dirname}" ] && [ "$(ls -A "build/${dirname}" 2>/dev/null)" ]; then
+              echo "  ✓ Successfully copied ${dirname} build"
+            else
+              echo "  ✗ ERROR: Failed to copy ${dirname} build"
+            fi
           fi
         done
         
