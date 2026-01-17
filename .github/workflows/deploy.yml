@@ -40,10 +40,36 @@ jobs:
         # Find all directories with package.json (React apps)
         for dir in */; do
           if [ -f "${dir}package.json" ]; then
-            echo "Building React app in ${dir}"
+            dirname=$(basename "$dir")
+            echo "Building React app: ${dirname}"
             cd "${dir}"
-            npm install
-            npm run build
+            
+            echo "  Installing dependencies..."
+            if ! npm install; then
+              echo "  ✗ ERROR: npm install failed for ${dirname}"
+              exit 1
+            fi
+            
+            echo "  Building app..."
+            if ! npm run build; then
+              echo "  ✗ ERROR: npm run build failed for ${dirname}"
+              exit 1
+            fi
+            
+            # Verify build directory was created
+            if [ ! -d "build" ]; then
+              echo "  ✗ ERROR: build directory not created for ${dirname}"
+              exit 1
+            fi
+            
+            # Verify build has files
+            if [ -z "$(ls -A build 2>/dev/null)" ]; then
+              echo "  ✗ ERROR: build directory is empty for ${dirname}"
+              exit 1
+            fi
+            
+            echo "  ✓ Successfully built ${dirname}"
+            echo "  Build contains $(find build -type f | wc -l) files"
             cd ..
           fi
         done
@@ -112,15 +138,14 @@ jobs:
               # Check if build directory has content
               if [ "$(ls -A "${dir}build" 2>/dev/null)" ]; then
                 echo "  Copying build contents..."
-                # Try multiple copy methods to ensure it works
-                if cp -r "${dir}build"/. "build/${dirname}/" 2>/dev/null; then
-                  echo "  ✓ Copy method 1 succeeded (using .)"
-                elif cp -r "${dir}build"/* "build/${dirname}/" 2>/dev/null; then
-                  echo "  ✓ Copy method 2 succeeded (using *)"
-                else
-                  echo "  ✗ ERROR: All copy methods failed"
-                  exit 1
+                # Copy all contents including hidden files
+                # This matches the pattern used successfully for calculator
+                cp -r "${dir}build"/* "build/${dirname}/" 2>&1
+                # Also copy hidden files if any
+                if [ -n "$(find "${dir}build" -maxdepth 1 -name '.*' -type f 2>/dev/null)" ]; then
+                  find "${dir}build" -maxdepth 1 -name '.*' -type f -exec cp {} "build/${dirname}/" \; 2>/dev/null || true
                 fi
+                echo "  ✓ Copy completed"
               else
                 echo "  ✗ ERROR: ${dirname}/build directory is empty - build may have failed"
                 exit 1
@@ -230,6 +255,21 @@ jobs:
         if [ -z "$(ls -A build/ 2>/dev/null)" ]; then
           echo "ERROR: Build directory is empty!"
           exit 1
+        fi
+        
+        # List all files that will be uploaded (for debugging)
+        echo "=== Files to be uploaded ==="
+        find build/ -type f | head -50
+        echo "Total files: $(find build/ -type f | wc -l)"
+        
+        # Check for symlinks (FTP might have issues with these)
+        echo "Checking for symlinks..."
+        symlinks=$(find build/ -type l 2>/dev/null | wc -l)
+        if [ "$symlinks" -gt 0 ]; then
+          echo "  ⚠ Warning: Found $symlinks symlinks (may cause FTP issues)"
+          find build/ -type l
+        else
+          echo "  ✓ No symlinks found"
         fi
         
         echo "Build directory is ready for deployment"
