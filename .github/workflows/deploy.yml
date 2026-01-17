@@ -102,21 +102,41 @@ jobs:
         # Copy React app build outputs
         for dir in */; do
           dirname=$(basename "$dir")
-          if [ -f "${dir}package.json" ] && [ -d "${dir}build" ]; then
-            echo "Copying React app build: ${dirname}"
-            # Copy the build folder contents to the app folder in build/
-            mkdir -p "build/${dirname}"
-            # Use a more robust copy that handles empty directories and hidden files
-            if [ "$(ls -A "${dir}build" 2>/dev/null)" ]; then
-              cp -r "${dir}build"/. "build/${dirname}/" 2>/dev/null || cp -r "${dir}build"/* "build/${dirname}/" 2>/dev/null || true
+          if [ -f "${dir}package.json" ]; then
+            echo "Processing React app: ${dirname}"
+            if [ -d "${dir}build" ]; then
+              echo "  Found build directory"
+              # Copy the build folder contents to the app folder in build/
+              mkdir -p "build/${dirname}"
+              
+              # Check if build directory has content
+              if [ "$(ls -A "${dir}build" 2>/dev/null)" ]; then
+                echo "  Copying build contents..."
+                # Try multiple copy methods to ensure it works
+                if cp -r "${dir}build"/. "build/${dirname}/" 2>/dev/null; then
+                  echo "  ✓ Copy method 1 succeeded (using .)"
+                elif cp -r "${dir}build"/* "build/${dirname}/" 2>/dev/null; then
+                  echo "  ✓ Copy method 2 succeeded (using *)"
+                else
+                  echo "  ✗ ERROR: All copy methods failed"
+                  exit 1
+                fi
+              else
+                echo "  ✗ ERROR: ${dirname}/build directory is empty - build may have failed"
+                exit 1
+              fi
+              
+              # Verify copy was successful
+              if [ -d "build/${dirname}" ] && [ "$(ls -A "build/${dirname}" 2>/dev/null)" ]; then
+                file_count=$(find "build/${dirname}" -type f 2>/dev/null | wc -l)
+                echo "  ✓ Successfully copied ${dirname} build (${file_count} files)"
+              else
+                echo "  ✗ ERROR: Failed to copy ${dirname} build - destination is empty"
+                exit 1
+              fi
             else
-              echo "  ⚠ Warning: ${dirname}/build is empty"
-            fi
-            # Verify copy was successful
-            if [ -d "build/${dirname}" ] && [ "$(ls -A "build/${dirname}" 2>/dev/null)" ]; then
-              echo "  ✓ Successfully copied ${dirname} build"
-            else
-              echo "  ✗ ERROR: Failed to copy ${dirname} build"
+              echo "  ✗ ERROR: ${dirname}/build directory does not exist - build may have failed"
+              exit 1
             fi
           fi
         done
@@ -147,21 +167,72 @@ jobs:
         echo "Build directory contents:"
         ls -la build/ || echo "Cannot list build directory"
         
-        echo "Checking for CRM folder..."
+        echo "All folders in build/:"
+        find build/ -maxdepth 1 -type d | sort
+        
+        echo "Checking for React apps..."
+        for dir in build/*/; do
+          if [ -d "$dir" ]; then
+            dirname=$(basename "$dir")
+            echo "Checking ${dirname}..."
+            if [ -f "build/${dirname}/index.html" ] || [ -f "build/${dirname}/static" ]; then
+              echo "  ✓ ${dirname} appears to be a valid app (has index.html or static folder)"
+              file_count=$(find "build/${dirname}" -type f 2>/dev/null | wc -l)
+              echo "  ✓ Contains ${file_count} files"
+            else
+              echo "  ⚠ ${dirname} might be incomplete (no index.html or static folder)"
+            fi
+          fi
+        done
+        
+        echo "Checking for CRM folder (if present)..."
         if [ -d "build/crm" ]; then
           echo "✓ CRM folder found in build/"
           echo "CRM folder contents (first 20 items):"
           ls -la build/crm/ | head -20
           echo "Total files in crm: $(find build/crm -type f 2>/dev/null | wc -l)"
-          echo "Total directories in crm: $(find build/crm -type d 2>/dev/null | wc -l)"
         else
-          echo "ERROR: CRM folder not found in build/"
-          echo "Available folders in build/:"
-          find build/ -maxdepth 1 -type d
-          exit 1
+          echo "ℹ CRM folder not found (this is OK if not deploying CRM)"
         fi
         
         echo "=== Verification Complete ==="
+    
+    - name: Pre-FTP Verification
+      if: github.ref == 'refs/heads/test'
+      run: |
+        echo "=== Pre-FTP Verification ==="
+        echo "Checking build directory structure..."
+        echo "Total items in build/:"
+        find build/ -maxdepth 1 -type f -o -type d | wc -l
+        
+        echo "Listing all top-level items in build/:"
+        ls -la build/
+        
+        echo "Checking for React apps in build/:"
+        for app_dir in build/*/; do
+          if [ -d "$app_dir" ]; then
+            app_name=$(basename "$app_dir")
+            echo "  App: ${app_name}"
+            if [ -f "${app_dir}index.html" ]; then
+              echo "    ✓ Has index.html"
+            fi
+            if [ -d "${app_dir}static" ]; then
+              echo "    ✓ Has static folder"
+            fi
+            file_count=$(find "$app_dir" -type f 2>/dev/null | wc -l)
+            echo "    Total files: ${file_count}"
+          fi
+        done
+        
+        echo "=== Pre-FTP Verification Complete ==="
+        
+        # Ensure build directory is not empty
+        if [ -z "$(ls -A build/ 2>/dev/null)" ]; then
+          echo "ERROR: Build directory is empty!"
+          exit 1
+        fi
+        
+        echo "Build directory is ready for deployment"
     
     - name: Deploy to Test Environment
       if: github.ref == 'refs/heads/test'
@@ -172,6 +243,8 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./build/
         server-dir: ./tools-test/
+        dangerous-clean-slate: false
+        dry-run: false
         protocol: ftp
         port: 21
         dangerous-clean-slate: false
