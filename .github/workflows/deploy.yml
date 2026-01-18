@@ -134,17 +134,22 @@ jobs:
             mkdir -p "build/${dirname}"
             # Copy visible files
             cp -r "${dir}build"/* "build/${dirname}/" 2>/dev/null || true
-            # Copy hidden files (important for .htaccess, .nojekyll, etc.)
+            # Copy hidden files explicitly (important for .htaccess, .nojekyll, etc.)
             shopt -s dotglob
             for file in "${dir}build"/.*; do
-              if [ -f "$file" ]; then
+              if [ -f "$file" ] && [ "$(basename "$file")" != "." ] && [ "$(basename "$file")" != ".." ]; then
                 cp "$file" "build/${dirname}/" 2>/dev/null || true
               fi
             done
             shopt -u dotglob
             # Remove any symlinks (FTP can't handle them)
             find "build/${dirname}" -type l -delete 2>/dev/null || true
-            echo "  ✓ Copied ${dirname} build"
+            # Verify essential files exist
+            if [ -f "build/${dirname}/index.html" ]; then
+              echo "  ✓ Copied ${dirname} build (index.html verified)"
+            else
+              echo "  ⚠ Warning: index.html not found after copy"
+            fi
           fi
         done
         
@@ -254,20 +259,147 @@ jobs:
         
         echo "Build directory is ready for deployment"
     
-    - name: Debug - Show files that will be uploaded
+    - name: Pre-FTP File Verification
       if: github.ref == 'refs/heads/test'
       run: |
-        echo "=== Files ready for FTP upload ==="
-        echo "Total files: $(find build/ -type f | wc -l)"
-        echo "Sample files:"
-        find build/ -type f | head -20
-        echo ""
-        echo "Contact-form files:"
-        if [ -d "build/contact-form" ]; then
-          find build/contact-form -type f | head -10
+        echo "=== Pre-FTP File Verification ==="
+        
+        # Verify all files exist and are readable
+        echo "Checking file accessibility..."
+        failed_files=0
+        for file in $(find build/ -type f); do
+          if [ ! -r "$file" ]; then
+            echo "✗ Cannot read: $file"
+            failed_files=$((failed_files + 1))
+          fi
+        done
+        
+        if [ "$failed_files" -gt 0 ]; then
+          echo "✗ Found $failed_files unreadable files"
+          exit 1
         else
-          echo "  (contact-form directory not found)"
+          echo "✓ All files are readable"
         fi
+        
+        # Check for empty directories (might confuse FTP)
+        echo ""
+        echo "Checking for empty directories..."
+        empty_dirs=$(find build/ -type d -empty | wc -l)
+        if [ "$empty_dirs" -gt 0 ]; then
+          echo "⚠ Found $empty_dirs empty directories:"
+          find build/ -type d -empty | head -10
+        else
+          echo "✓ No empty directories"
+        fi
+        
+        # Verify no broken symlinks
+        echo ""
+        echo "Checking for broken symlinks..."
+        broken_symlinks=$(find build/ -type l ! -exec test -e {} \; -print 2>/dev/null | wc -l)
+        if [ "$broken_symlinks" -gt 0 ]; then
+          echo "✗ Found $broken_symlinks broken symlinks:"
+          find build/ -type l ! -exec test -e {} \; -print 2>/dev/null | head -10
+          exit 1
+        else
+          echo "✓ No broken symlinks"
+        fi
+        
+        # Check total size
+        echo ""
+        echo "Total build directory size:"
+        du -sh build/
+        
+        echo "=== Verification Complete ==="
+    
+    - name: Comprehensive Build Directory Analysis
+      if: github.ref == 'refs/heads/test'
+      run: |
+        echo "========================================="
+        echo "COMPREHENSIVE BUILD DIRECTORY ANALYSIS"
+        echo "========================================="
+        
+        echo ""
+        echo "=== Directory Structure ==="
+        find build/ -type d | head -30 || ls -R build/ | head -30
+        
+        echo ""
+        echo "=== All Files Count ==="
+        echo "Total files: $(find build/ -type f | wc -l)"
+        echo "Total directories: $(find build/ -type d | wc -l)"
+        
+        echo ""
+        echo "=== Contact-Form Specific Analysis ==="
+        if [ -d "build/contact-form" ]; then
+          echo "✓ contact-form directory exists"
+          echo "  Files in contact-form: $(find build/contact-form -type f | wc -l)"
+          echo "  Directories in contact-form: $(find build/contact-form -type d | wc -l)"
+          echo ""
+          echo "  Top-level contents:"
+          ls -la build/contact-form/ | head -20
+          echo ""
+          echo "  All files in contact-form:"
+          find build/contact-form -type f | head -30
+          echo ""
+          echo "  Static folder check:"
+          if [ -d "build/contact-form/static" ]; then
+            echo "    ✓ static folder exists ($(find build/contact-form/static -type f | wc -l) files)"
+            echo "    Sample static files:"
+            find build/contact-form/static -type f | head -10
+          else
+            echo "    ✗ static folder MISSING"
+          fi
+          echo ""
+          echo "  Critical files check:"
+          for file in index.html asset-manifest.json manifest.json robots.txt; do
+            if [ -f "build/contact-form/$file" ]; then
+              echo "    ✓ $file exists ($(wc -c < "build/contact-form/$file" 2>/dev/null || echo 0) bytes)"
+            else
+              echo "    ✗ $file MISSING"
+            fi
+          done
+          echo ""
+          echo "  Hidden files check:"
+          find build/contact-form -name ".*" -type f | head -10
+          echo ""
+          echo "  Symlinks check:"
+          symlinks=$(find build/contact-form -type l | wc -l)
+          if [ "$symlinks" -gt 0 ]; then
+            echo "    ⚠ Found $symlinks symlinks:"
+            find build/contact-form -type l | head -10
+          else
+            echo "    ✓ No symlinks found"
+          fi
+        else
+          echo "✗ contact-form directory NOT FOUND in build/"
+        fi
+        
+        echo ""
+        echo "=== Calculator Comparison (if exists) ==="
+        if [ -d "build/calculator" ]; then
+          echo "✓ calculator directory exists"
+          echo "  Files: $(find build/calculator -type f | wc -l)"
+          echo "  Structure comparison:"
+          ls -la build/calculator/ | head -10
+        fi
+        
+        echo ""
+        echo "=== File Size Analysis ==="
+        echo "Largest files in build/:"
+        find build/ -type f -exec ls -lh {} \; 2>/dev/null | sort -k5 -hr | head -20 || true
+        
+        echo ""
+        echo "=== Files with Special Characters ==="
+        find build/ -type f -name "*[^a-zA-Z0-9._/-]*" | head -10 || echo "  (none found)"
+        
+        echo ""
+        echo "=== Directory Permissions ==="
+        find build/ -type d -exec ls -ld {} \; | head -20
+        
+        echo ""
+        echo "=== Sample File Permissions ==="
+        find build/ -type f -exec ls -l {} \; | head -20
+        
+        echo "========================================="
     
     - name: Deploy to Test Environment
       if: github.ref == 'refs/heads/test'
@@ -280,7 +412,7 @@ jobs:
         server-dir: ./tools-test/
         protocol: ftp
         port: 21
-        dangerous-clean-slate: false
+        dangerous-clean-slate: true
         log-level: verbose
         exclude: |
           **/.git*
