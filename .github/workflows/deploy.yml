@@ -138,30 +138,51 @@ jobs:
               # Check if build directory has content
               if [ "$(ls -A "${dir}build" 2>/dev/null)" ]; then
                 echo "  Copying build contents..."
-                # Copy all contents including hidden files using shopt to enable dotglob
-                # This ensures we get everything, including .htaccess, .nojekyll, etc.
-                shopt -s dotglob
-                cp -r "${dir}build"/* "build/${dirname}/" 2>/dev/null || {
-                  echo "  ⚠ Copy with glob failed, trying alternative method..."
+                # Use rsync for atomic, reliable copying - handles hidden files automatically
+                # --no-links prevents symlink issues that cause FTP errors
+                if command -v rsync >/dev/null 2>&1; then
+                  rsync -av --no-links "${dir}build/" "build/${dirname}/"
+                  echo "  ✓ Copy completed (using rsync)"
+                else
+                  # Fallback: use tar which preserves everything and handles hidden files
+                  echo "  rsync not available, using tar fallback..."
                   (cd "${dir}build" && tar -cf - .) | (cd "build/${dirname}/" && tar -xf -)
-                }
-                shopt -u dotglob
-                echo "  ✓ Copy completed"
+                  echo "  ✓ Copy completed (using tar fallback)"
+                fi
               else
                 echo "  ✗ ERROR: ${dirname}/build directory is empty - build may have failed"
                 exit 1
               fi
               
-              # Verify copy was successful
+              # Verify copy was successful AND check for broken references
               if [ -d "build/${dirname}" ] && [ "$(ls -A "build/${dirname}" 2>/dev/null)" ]; then
                 file_count=$(find "build/${dirname}" -type f 2>/dev/null | wc -l)
                 echo "  ✓ Successfully copied ${dirname} build (${file_count} files)"
                 
+                # Check for and remove any symlinks (FTP doesn't handle them well)
+                symlink_count=$(find "build/${dirname}" -type l 2>/dev/null | wc -l)
+                if [ "$symlink_count" -gt 0 ]; then
+                  echo "  ⚠ Found $symlink_count symlinks, removing them to prevent FTP issues..."
+                  find "build/${dirname}" -type l -delete
+                  echo "  ✓ Symlinks removed"
+                fi
+                
+                # Check for asset-manifest.json and verify static folder exists
+                if [ -f "build/${dirname}/asset-manifest.json" ]; then
+                  if [ ! -d "build/${dirname}/static" ]; then
+                    echo "  ⚠ Warning: asset-manifest.json exists but static folder is missing"
+                  else
+                    static_files=$(find "build/${dirname}/static" -type f 2>/dev/null | wc -l)
+                    echo "  ✓ Static folder verified ($static_files files)"
+                  fi
+                fi
+                
                 # Verify critical files were copied (especially index.html for React apps)
                 if [ ! -f "build/${dirname}/index.html" ]; then
-                  echo "  ⚠ Warning: index.html not found in build/${dirname}/"
+                  echo "  ✗ ERROR: index.html not found in build/${dirname}/"
                   echo "  Listing contents:"
                   ls -la "build/${dirname}/" | head -20 || true
+                  exit 1
                 else
                   echo "  ✓ Verified: index.html exists"
                 fi
@@ -272,15 +293,28 @@ jobs:
         find build/ -type f | head -50
         echo "Total files: $(find build/ -type f | wc -l)"
         
-        # Check for symlinks (FTP might have issues with these)
+        # Check for and remove symlinks (FTP doesn't handle them well)
         echo "Checking for symlinks..."
         symlinks=$(find build/ -type l 2>/dev/null | wc -l)
         if [ "$symlinks" -gt 0 ]; then
-          echo "  ⚠ Warning: Found $symlinks symlinks (may cause FTP issues)"
-          find build/ -type l
+          echo "  ⚠ Found $symlinks symlinks, removing them to prevent FTP errors..."
+          find build/ -type l -delete
+          echo "  ✓ Symlinks removed"
         else
           echo "  ✓ No symlinks found"
         fi
+        
+        # Final verification: ensure no broken file references
+        echo "Performing final file integrity check..."
+        for app_dir in build/*/; do
+          if [ -d "$app_dir" ] && [ -f "${app_dir}index.html" ]; then
+            app_name=$(basename "$app_dir")
+            # Check if static folder exists if asset-manifest.json exists
+            if [ -f "${app_dir}asset-manifest.json" ] && [ ! -d "${app_dir}static" ]; then
+              echo "  ⚠ Warning: ${app_name} has asset-manifest.json but no static folder"
+            fi
+          fi
+        done
         
         echo "Build directory is ready for deployment"
         
