@@ -130,13 +130,18 @@ jobs:
           dirname=$(basename "$dir")
           if [ -f "${dir}package.json" ] && [ -d "${dir}build" ]; then
             echo "Copying React app: ${dirname}"
-            # Simple approach: copy entire build directory
+            # Simple approach: copy entire build directory including hidden files
             mkdir -p "build/${dirname}"
+            # Copy visible files
             cp -r "${dir}build"/* "build/${dirname}/" 2>/dev/null || true
-            # Also copy hidden files (important for .htaccess, etc.)
-            if [ -f "${dir}build/.htaccess" ]; then
-              cp "${dir}build/.htaccess" "build/${dirname}/.htaccess" 2>/dev/null || true
-            fi
+            # Copy hidden files (important for .htaccess, .nojekyll, etc.)
+            shopt -s dotglob
+            for file in "${dir}build"/.*; do
+              if [ -f "$file" ]; then
+                cp "$file" "build/${dirname}/" 2>/dev/null || true
+              fi
+            done
+            shopt -u dotglob
             # Remove any symlinks (FTP can't handle them)
             find "build/${dirname}" -type l -delete 2>/dev/null || true
             echo "  ✓ Copied ${dirname} build"
