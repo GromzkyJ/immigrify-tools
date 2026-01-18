@@ -138,13 +138,14 @@ jobs:
               # Check if build directory has content
               if [ "$(ls -A "${dir}build" 2>/dev/null)" ]; then
                 echo "  Copying build contents..."
-                # Copy all contents including hidden files
-                # This matches the pattern used successfully for calculator
-                cp -r "${dir}build"/* "build/${dirname}/" 2>&1
-                # Also copy hidden files if any
-                if [ -n "$(find "${dir}build" -maxdepth 1 -name '.*' -type f 2>/dev/null)" ]; then
-                  find "${dir}build" -maxdepth 1 -name '.*' -type f -exec cp {} "build/${dirname}/" \; 2>/dev/null || true
-                fi
+                # Copy all contents including hidden files using shopt to enable dotglob
+                # This ensures we get everything, including .htaccess, .nojekyll, etc.
+                shopt -s dotglob
+                cp -r "${dir}build"/* "build/${dirname}/" 2>/dev/null || {
+                  echo "  ⚠ Copy with glob failed, trying alternative method..."
+                  (cd "${dir}build" && tar -cf - .) | (cd "build/${dirname}/" && tar -xf -)
+                }
+                shopt -u dotglob
                 echo "  ✓ Copy completed"
               else
                 echo "  ✗ ERROR: ${dirname}/build directory is empty - build may have failed"
@@ -155,6 +156,15 @@ jobs:
               if [ -d "build/${dirname}" ] && [ "$(ls -A "build/${dirname}" 2>/dev/null)" ]; then
                 file_count=$(find "build/${dirname}" -type f 2>/dev/null | wc -l)
                 echo "  ✓ Successfully copied ${dirname} build (${file_count} files)"
+                
+                # Verify critical files were copied (especially index.html for React apps)
+                if [ ! -f "build/${dirname}/index.html" ]; then
+                  echo "  ⚠ Warning: index.html not found in build/${dirname}/"
+                  echo "  Listing contents:"
+                  ls -la "build/${dirname}/" | head -20 || true
+                else
+                  echo "  ✓ Verified: index.html exists"
+                fi
               else
                 echo "  ✗ ERROR: Failed to copy ${dirname} build - destination is empty"
                 exit 1
@@ -313,7 +323,8 @@ jobs:
           **/.php_cs.dist
           **/.php_cs.cache
           **/RoboFile.php
-          **/build/**
+          **/crm/build/**
+          **/vendor/build/**
           **/travis.php.ini
           **/README.md
           **/LICENSE.txt
@@ -383,7 +394,8 @@ jobs:
           **/.php_cs.dist
           **/.php_cs.cache
           **/RoboFile.php
-          **/build/**
+          **/crm/build/**
+          **/vendor/build/**
           **/travis.php.ini
           **/README.md
           **/LICENSE.txt
